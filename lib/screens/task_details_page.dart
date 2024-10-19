@@ -17,6 +17,8 @@ class TaskDetailsPage extends StatelessWidget {
     String title = task.title;
     String description = task.description;
     DateTime dueDate = task.dueDate;
+    TimeOfDay dueTime =
+        task.dueTime ?? TimeOfDay.now(); // Default to current time
 
     return Scaffold(
       appBar: AppBar(
@@ -67,6 +69,23 @@ class TaskDetailsPage extends StatelessWidget {
               controller: TextEditingController(
                   text: dueDate.toLocal().toString().split(' ')[0]),
             ),
+            TextField(
+              decoration: InputDecoration(labelText: 'Due Time'),
+              readOnly: true,
+              onTap: () async {
+                // Implement time picker
+                TimeOfDay? pickedTime = await showTimePicker(
+                  context: context,
+                  initialTime: dueTime,
+                );
+                if (pickedTime != null) {
+                  dueTime = pickedTime; // Update due time
+                }
+              },
+              controller: TextEditingController(
+                  text:
+                      '${dueTime.hour}:${dueTime.minute.toString().padLeft(2, '0')}'),
+            ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -76,6 +95,7 @@ class TaskDetailsPage extends StatelessWidget {
                     title: title,
                     description: description,
                     dueDate: dueDate,
+                    dueTime: dueTime,
                     isCompleted: task.isCompleted,
                   );
                   onTaskUpdated(updatedTask); // Update the task

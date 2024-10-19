@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import '../models/task.dart';
 import '../components/task_card.dart';
+import 'task_details_page.dart'; // Import the task details page
 
 class PendingPage extends StatelessWidget {
   final List<Task> pendingTasks;
   final Function(Task) onTaskCompleted;
-  final Function(String, String, DateTime)
-      onTaskAdded; // Callback for adding tasks
+  final Function(Task) onTaskDeleted;
+  final Function(Task) onTaskUpdated;
+  final Function(Task) onTaskAdded; // Callback to handle adding tasks
 
   PendingPage({
     required this.pendingTasks,
     required this.onTaskCompleted,
-    required this.onTaskAdded, // Add this parameter
+    required this.onTaskDeleted,
+    required this.onTaskUpdated,
+    required this.onTaskAdded, // Add to constructor
   });
 
   @override
@@ -24,21 +28,38 @@ class PendingPage extends StatelessWidget {
         itemCount: pendingTasks.length,
         itemBuilder: (context, index) {
           final task = pendingTasks[index];
-          return TaskCard(
-            task: task,
-            onComplete: () =>
-                onTaskCompleted(task), // Call the callback when completed
-            onUncomplete: () {
-              // No action needed for pending tasks
+          return GestureDetector(
+            onTap: () {
+              // Navigate to the TaskDetailsPage on task click
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TaskDetailsPage(
+                    task: task,
+                    onTaskUpdated: (updatedTask) {
+                      onTaskUpdated(updatedTask);
+                    },
+                    onTaskDeleted: (deletedTask) {
+                      onTaskDeleted(deletedTask);
+                    },
+                  ),
+                ),
+              );
             },
+            child: TaskCard(
+              task: task,
+              onComplete: () => onTaskCompleted(task),
+              onUncomplete: () {
+                // No action needed for pending tasks
+              },
+            ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _addTask(context), // Call the add task method
-        backgroundColor: Colors.white, // Set FAB background to white
-        child: Icon(Icons.add,
-            color: Colors.blue[800]), // Set FAB icon color to blue
+        onPressed: () => _addTask(context),
+        backgroundColor: Colors.white,
+        child: Icon(Icons.add, color: Colors.blue[800]),
       ),
     );
   }
@@ -47,13 +68,13 @@ class PendingPage extends StatelessWidget {
     String title = '';
     String description = '';
     DateTime? dueDate;
+    TimeOfDay? dueTime; // New variable for due time
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white, // Set the background color to white
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-            top: Radius.circular(16)), // Optional: rounded corners
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
         return Padding(
@@ -64,20 +85,20 @@ class PendingPage extends StatelessWidget {
               TextField(
                 decoration: InputDecoration(labelText: 'Task Title'),
                 onChanged: (value) {
-                  title = value; // Capture the title input
+                  title = value;
                 },
               ),
               TextField(
                 decoration: InputDecoration(labelText: 'Task Description'),
                 onChanged: (value) {
-                  description = value; // Capture the description input
+                  description = value;
                 },
               ),
               TextField(
                 decoration: InputDecoration(labelText: 'Due Date'),
-                readOnly: true, // Make the text field read-only
+                readOnly: true,
                 onTap: () async {
-                  FocusScope.of(context).unfocus(); // Dismiss the keyboard
+                  FocusScope.of(context).unfocus();
                   final pickedDate = await showDatePicker(
                     context: context,
                     initialDate: dueDate ?? DateTime.now(),
@@ -85,25 +106,50 @@ class PendingPage extends StatelessWidget {
                     lastDate: DateTime(2101),
                   );
                   if (pickedDate != null) {
-                    dueDate = pickedDate; // Capture the due date
+                    dueDate = pickedDate;
                   }
                 },
-                controller: TextEditingController(
-                    text: dueDate != null
-                        ? dueDate!.toLocal().toString().split(' ')[0]
-                        : ''), // Display the selected date
+              ),
+              TextField(
+                decoration: InputDecoration(labelText: 'Due Time'),
+                readOnly: true,
+                onTap: () async {
+                  FocusScope.of(context).unfocus();
+                  TimeOfDay? pickedTime = await showTimePicker(
+                    context: context,
+                    initialTime: dueTime ?? TimeOfDay.now(),
+                  );
+                  if (pickedTime != null) {
+                    dueTime = pickedTime;
+                  }
+                },
               ),
               ElevatedButton(
                 onPressed: () {
                   if (title.isNotEmpty &&
                       description.isNotEmpty &&
-                      dueDate != null) {
-                    // Call the function to add the task
-                    onTaskAdded(
-                        title, description, dueDate!); // Force unwrapping
+                      dueDate != null &&
+                      dueTime != null) {
+                    // Create a new task and add it to the pending tasks list
+                    DateTime combinedDateTime = DateTime(
+                      dueDate!.year,
+                      dueDate!.month,
+                      dueDate!.day,
+                      dueTime!.hour,
+                      dueTime!.minute,
+                    );
+
+                    Task newTask = Task(
+                      title: title,
+                      description: description,
+                      dueDate: combinedDateTime, // Use the combined DateTime
+                    );
+
+                    // Call the function to add the task to the pendingTasks list
+                    onTaskAdded(newTask); // Call a callback to add the task
+
                     Navigator.pop(context); // Close the bottom sheet
                   } else {
-                    // Optionally show an error message if fields are empty
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Please fill in all fields.')),
                     );
