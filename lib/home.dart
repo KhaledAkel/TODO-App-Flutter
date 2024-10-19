@@ -45,12 +45,26 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _addNewTask(String title, String description, DateTime dueDate) {
+    final newTask = Task(
+      title: title,
+      description: description,
+      dueDate: dueDate,
+      isCompleted: false,
+    );
+
+    setState(() {
+      _pendingTasks.add(newTask);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final pages = [
       PendingPage(
         pendingTasks: _pendingTasks,
         onTaskCompleted: _onTaskCompleted,
+        onTaskAdded: _addNewTask, // Pass the add task method here
       ),
       CompletedPage(
         completedTasks: _completedTasks,
@@ -60,13 +74,18 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tasko',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            )),
+        title: Text(
+          'Tasko',
+          style: TextStyle(
+              color: Colors.blue[800],
+              fontSize: 20,
+              fontWeight: FontWeight.bold),
+        ),
       ),
       body: IndexedStack(index: _currentIndex, children: pages),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType
+            .fixed, // Prevents the whole bar from animating
         backgroundColor: Colors.white,
         selectedItemColor:
             Colors.blue[800], // Dark blue color for selected icon
