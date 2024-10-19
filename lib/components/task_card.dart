@@ -15,12 +15,26 @@ class TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Format the due date and time using built-in methods
+    String dueDateFormatted =
+        "${task.dueDate.day}/${task.dueDate.month}/${task.dueDate.year} ${task.dueDate.hour}:${task.dueDate.minute.toString().padLeft(2, '0')}";
+
     return Card(
       color: Colors.white, // Set card color to white
       elevation: 2, // Optional: adds some elevation for depth
       child: ListTile(
         title: Text(task.title),
-        subtitle: Text(task.description),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(task.description),
+            SizedBox(height: 4), // Add some spacing
+            Text(
+              'Due: $dueDateFormatted', // Display due date and time
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ],
+        ),
         trailing: task.isCompleted
             ? IconButton(
                 icon: Icon(Icons.close,
