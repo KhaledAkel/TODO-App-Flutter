@@ -11,8 +11,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-  List<Task> _completedTasks = [];
   List<Task> _pendingTasks = [];
+  List<Task> _completedTasks = [];
   final MockTaskService _taskService = MockTaskService();
 
   @override
@@ -31,18 +31,31 @@ class _HomePageState extends State<HomePage> {
 
   void _onTaskCompleted(Task task) {
     setState(() {
-      // Remove the task from pending tasks and mark it as completed
-      _pendingTasks.remove(task); // Remove from pending
-      task.isCompleted = true; // Mark the task as completed
-      _completedTasks.add(task); // Add to completed tasks
+      _pendingTasks.remove(task);
+      task.isCompleted = true;
+      _completedTasks.add(task);
+    });
+  }
+
+  void _onTaskUncompleted(Task task) {
+    setState(() {
+      _completedTasks.remove(task);
+      task.isCompleted = false;
+      _pendingTasks.add(task);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final pages = [
-      PendingPage(onTaskCompleted: _onTaskCompleted), // Pass the callback
-      CompletedPage(completedTasks: _completedTasks), // Pass completed tasks
+      PendingPage(
+        pendingTasks: _pendingTasks,
+        onTaskCompleted: _onTaskCompleted,
+      ),
+      CompletedPage(
+        completedTasks: _completedTasks,
+        onUncomplete: _onTaskUncompleted,
+      ),
     ];
 
     return Scaffold(
@@ -51,6 +64,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: IndexedStack(index: _currentIndex, children: pages),
       bottomNavigationBar: NavigationBar(
+        backgroundColor: Colors.white, // Set the bottom navigation bar to white
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
           setState(() {
