@@ -45,16 +45,25 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _addNewTask(String title, String description, DateTime dueDate) {
-    final newTask = Task(
-      title: title,
-      description: description,
-      dueDate: dueDate,
-      isCompleted: false,
-    );
-
+  void _onTaskUpdated(Task updatedTask) {
     setState(() {
-      _pendingTasks.add(newTask);
+      int index =
+          _pendingTasks.indexWhere((task) => task.title == updatedTask.title);
+      if (index != -1) {
+        _pendingTasks[index] = updatedTask;
+      }
+    });
+  }
+
+  void _onTaskDeleted(Task deletedTask) {
+    setState(() {
+      _pendingTasks.remove(deletedTask);
+    });
+  }
+
+  void _onTaskAdded(Task newTask) {
+    setState(() {
+      _pendingTasks.add(newTask); // Add the new task to the pending list
     });
   }
 
@@ -64,7 +73,9 @@ class _HomePageState extends State<HomePage> {
       PendingPage(
         pendingTasks: _pendingTasks,
         onTaskCompleted: _onTaskCompleted,
-        onTaskAdded: _addNewTask, // Pass the add task method here
+        onTaskDeleted: _onTaskDeleted,
+        onTaskUpdated: _onTaskUpdated,
+        onTaskAdded: _onTaskAdded, // Pass the new callback
       ),
       CompletedPage(
         completedTasks: _completedTasks,
@@ -77,36 +88,110 @@ class _HomePageState extends State<HomePage> {
         title: Text(
           'Tasko',
           style: TextStyle(
-              color: Colors.blue[800],
-              fontSize: 20,
-              fontWeight: FontWeight.bold),
+            color: Colors.blue[800],
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
-      body: IndexedStack(index: _currentIndex, children: pages),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType
-            .fixed, // Prevents the whole bar from animating
-        backgroundColor: Colors.white,
-        selectedItemColor:
-            Colors.blue[800], // Dark blue color for selected icon
-        unselectedItemColor: Colors.grey, // Gray color for unselected icons
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth > 600) {
+            // If the screen is wider than 600 pixels
+            return Row(
+              children: [
+                NavigationRail(
+                  backgroundColor: Colors.white, // Match the background color
+                  selectedIndex: _currentIndex,
+                  onDestinationSelected: (index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                  destinations: [
+                    NavigationRailDestination(
+                      icon: Container(
+                        decoration: BoxDecoration(
+                          color: _currentIndex == 0
+                              ? Colors.white
+                              : Colors.transparent,
+                          border: _currentIndex == 0
+                              ? Border.all(color: Colors.blue[800]!)
+                              : null,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.task,
+                          color: _currentIndex == 0
+                              ? Colors.blue[800]
+                              : Colors.grey,
+                        ),
+                      ),
+                      label: Text('Pending Tasks'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Container(
+                        decoration: BoxDecoration(
+                          color: _currentIndex == 1
+                              ? Colors.white
+                              : Colors.transparent,
+                          border: _currentIndex == 1
+                              ? Border.all(color: Colors.blue[800]!)
+                              : null,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.check,
+                          color: _currentIndex == 1
+                              ? Colors.blue[800]
+                              : Colors.grey,
+                        ),
+                      ),
+                      label: Text('Completed Tasks'),
+                    ),
+                  ],
+                  selectedLabelTextStyle: TextStyle(
+                    color: Colors.blue[800], // Selected item text color
+                  ),
+                  unselectedLabelTextStyle: TextStyle(
+                    color: Colors.grey, // Unselected item text color
+                  ),
+                  indicatorColor:
+                      Colors.transparent, // Remove indicator for custom styling
+                ),
+                VerticalDivider(thickness: 1, width: 1),
+                Expanded(child: pages[_currentIndex]),
+              ],
+            );
+          } else {
+            return IndexedStack(index: _currentIndex, children: pages);
+          }
         },
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.task),
-            label: 'Pending Tasks',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.check),
-            label: 'Completed Tasks',
-          ),
-        ],
       ),
+      bottomNavigationBar: (MediaQuery.of(context).size.width <= 600)
+          ? BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: Colors.white,
+              selectedItemColor: Colors.blue[800],
+              unselectedItemColor: Colors.grey,
+              currentIndex: _currentIndex,
+              onTap: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              items: [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.task),
+                  label: 'Pending Tasks',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.check),
+                  label: 'Completed Tasks',
+                ),
+              ],
+            )
+          : null,
     );
   }
 }
