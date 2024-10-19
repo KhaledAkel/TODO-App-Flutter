@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 /// Represents a task with a title, description, due date, and completion status.
 class Task {
   /// The title of the task.
@@ -9,6 +11,9 @@ class Task {
   /// The due date of the task.
   final DateTime dueDate;
 
+  /// The due time of the task.
+  final TimeOfDay? dueTime; // New property for due time
+
   /// Indicates whether the task is completed.
   /// Defaults to `false`.
   bool isCompleted;
@@ -18,6 +23,7 @@ class Task {
     required this.title,
     required this.description,
     required this.dueDate,
+    this.dueTime,
     this.isCompleted = false,
   });
 }
