@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 import '../models/task.dart';
 
+/// A widget that displays a card with task details.
+///
+/// The card includes the task's title, description, due date, and an icon
+/// button to mark the task as completed or uncompleted.
 class TaskCard extends StatelessWidget {
+  /// The task to be displayed in the card.
   final Task task;
-  final VoidCallback onComplete; // Callback to mark task as complete
-  final VoidCallback onUncomplete; // Callback to uncomplete or remove the task
 
+  /// Callback to mark the task as complete.
+  final VoidCallback onComplete;
+
+  /// Callback to mark the task as uncomplete or remove the task.
+  final VoidCallback onUncomplete;
+
+  /// Creates a [TaskCard] widget.
+  ///
+  /// The [task], [onComplete], and [onUncomplete] parameters are required.
   const TaskCard({
     Key? key,
     required this.task,
