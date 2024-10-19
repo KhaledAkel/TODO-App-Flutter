@@ -60,23 +60,29 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tasko'),
+        title: Text('Tasko',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            )),
       ),
       body: IndexedStack(index: _currentIndex, children: pages),
-      bottomNavigationBar: NavigationBar(
-        backgroundColor: Colors.white, // Set the bottom navigation bar to white
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.white,
+        selectedItemColor:
+            Colors.blue[800], // Dark blue color for selected icon
+        unselectedItemColor: Colors.grey, // Gray color for unselected icons
+        currentIndex: _currentIndex,
+        onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
         },
-        destinations: const [
-          NavigationDestination(
+        items: [
+          BottomNavigationBarItem(
             icon: Icon(Icons.task),
             label: 'Pending Tasks',
           ),
-          NavigationDestination(
+          BottomNavigationBarItem(
             icon: Icon(Icons.check),
             label: 'Completed Tasks',
           ),
