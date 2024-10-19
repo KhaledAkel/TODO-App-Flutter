@@ -3,8 +3,11 @@ import '../models/task.dart';
 
 class TaskCard extends StatelessWidget {
   final Task task;
+  final VoidCallback onComplete; // Callback for when the task is completed
 
-  TaskCard({required this.task});
+  TaskCard(
+      {required this.task,
+      required this.onComplete}); // Make sure to require onComplete
 
   @override
   Widget build(BuildContext context) {
@@ -15,10 +18,7 @@ class TaskCard extends StatelessWidget {
         subtitle: Text(task.description),
         trailing: IconButton(
           icon: Icon(Icons.check),
-          onPressed: () {
-            // Handle task completion (you may want to update state)
-            print('Completed Task: ${task.title}');
-          },
+          onPressed: onComplete, // Call the onComplete callback when pressed
         ),
       ),
     );

@@ -1,5 +1,3 @@
-// task.dart
-
 /// Represents a task with a title, description, due date, and completion status.
 class Task {
   /// The title of the task.
@@ -16,9 +14,6 @@ class Task {
   bool isCompleted;
 
   /// Creates a new [Task] instance.
-  ///
-  /// The [title], [description], and [dueDate] parameters are required.
-  /// The [isCompleted] parameter is optional and defaults to `false`.
   Task({
     required this.title,
     required this.description,
@@ -36,7 +31,5 @@ class TaskData {
   final List<Task> completedTasks;
 
   /// Creates a new [TaskData] instance with the given lists of pending and completed tasks.
-  ///
-  /// The [pendingTasks] and [completedTasks] parameters are required.
   TaskData(this.pendingTasks, this.completedTasks);
 }
