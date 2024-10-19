@@ -1,3 +1,5 @@
+// task.dart
+
 class Task {
   String title;
   String description;
@@ -10,4 +12,11 @@ class Task {
     required this.dueDate,
     this.isCompleted = false,
   });
+}
+
+class TaskData {
+  final List<Task> pendingTasks;
+  final List<Task> completedTasks;
+
+  TaskData(this.pendingTasks, this.completedTasks);
 }
