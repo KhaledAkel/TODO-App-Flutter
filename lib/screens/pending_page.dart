@@ -8,14 +8,14 @@ class PendingPage extends StatelessWidget {
   final Function(Task) onTaskCompleted;
   final Function(Task) onTaskDeleted;
   final Function(Task) onTaskUpdated;
-  final Function(Task) onTaskAdded; // Callback to handle adding tasks
+  final Function(Task) onTaskAdded; // Added onTaskAdded
 
   PendingPage({
     required this.pendingTasks,
     required this.onTaskCompleted,
     required this.onTaskDeleted,
     required this.onTaskUpdated,
-    required this.onTaskAdded, // Add to constructor
+    required this.onTaskAdded,
   });
 
   @override
@@ -68,7 +68,11 @@ class PendingPage extends StatelessWidget {
     String title = '';
     String description = '';
     DateTime? dueDate;
-    TimeOfDay? dueTime; // New variable for due time
+    TimeOfDay? dueTime; // Added due time variable
+
+    final TextEditingController dueDateController = TextEditingController();
+    final TextEditingController dueTimeController =
+        TextEditingController(); // Controller for due time text field
 
     showModalBottomSheet(
       context: context,
@@ -97,6 +101,7 @@ class PendingPage extends StatelessWidget {
               TextField(
                 decoration: InputDecoration(labelText: 'Due Date'),
                 readOnly: true,
+                controller: dueDateController, // Set the controller here
                 onTap: () async {
                   FocusScope.of(context).unfocus();
                   final pickedDate = await showDatePicker(
@@ -106,21 +111,28 @@ class PendingPage extends StatelessWidget {
                     lastDate: DateTime(2101),
                   );
                   if (pickedDate != null) {
-                    dueDate = pickedDate;
+                    dueDate = pickedDate; // Update due date
+                    dueDateController.text = dueDate!
+                        .toLocal()
+                        .toString()
+                        .split(' ')[0]; // Update the text in the controller
                   }
                 },
               ),
               TextField(
                 decoration: InputDecoration(labelText: 'Due Time'),
                 readOnly: true,
+                controller: dueTimeController, // Set the controller here
                 onTap: () async {
                   FocusScope.of(context).unfocus();
-                  TimeOfDay? pickedTime = await showTimePicker(
+                  final pickedTime = await showTimePicker(
                     context: context,
                     initialTime: dueTime ?? TimeOfDay.now(),
                   );
                   if (pickedTime != null) {
-                    dueTime = pickedTime;
+                    dueTime = pickedTime; // Update due time
+                    dueTimeController.text =
+                        '${dueTime!.hour}:${dueTime!.minute.toString().padLeft(2, '0')}'; // Update the text in the controller
                   }
                 },
               ),
@@ -130,24 +142,19 @@ class PendingPage extends StatelessWidget {
                       description.isNotEmpty &&
                       dueDate != null &&
                       dueTime != null) {
-                    // Create a new task and add it to the pending tasks list
-                    DateTime combinedDateTime = DateTime(
-                      dueDate!.year,
-                      dueDate!.month,
-                      dueDate!.day,
-                      dueTime!.hour,
-                      dueTime!.minute,
-                    );
-
-                    Task newTask = Task(
+                    // Call the function to add the task
+                    final newTask = Task(
                       title: title,
                       description: description,
-                      dueDate: combinedDateTime, // Use the combined DateTime
+                      dueDate: DateTime(
+                        dueDate!.year,
+                        dueDate!.month,
+                        dueDate!.day,
+                        dueTime!.hour,
+                        dueTime!.minute,
+                      ),
                     );
-
-                    // Call the function to add the task to the pendingTasks list
-                    onTaskAdded(newTask); // Call a callback to add the task
-
+                    onTaskAdded(newTask); // Call the added callback
                     Navigator.pop(context); // Close the bottom sheet
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
