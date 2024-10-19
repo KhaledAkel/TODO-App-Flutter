@@ -8,14 +8,20 @@ void main() {
 class ToDo extends StatelessWidget {
   const ToDo({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Tasko',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.white, // White background for the app
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white, // White background for the AppBar
+          titleTextStyle: TextStyle(
+              color: Colors.blue[800], fontSize: 20), // Dark blue title text
+          iconTheme: IconThemeData(
+              color: Colors.blue[800]), // Dark blue for icons in AppBar
+        ),
       ),
       home: HomePage(),
     );
